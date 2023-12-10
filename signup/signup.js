@@ -15,6 +15,8 @@ function handleTogglePassword(e, id) {
 function handleSignUpSubmit(e) {
   e.preventDefault();
 
+  console.log("first");
+
   const signUpForm = document.getElementById("signup__form");
 
   let formData = new FormData(signUpForm);
@@ -23,5 +25,14 @@ function handleSignUpSubmit(e) {
     alert("Please enter your password before submitting your account");
   } else {
     // Do submit form data through API request
+    axios
+      .post(`${env.DOMAIN_SERVER}:${env.PORT}/api/users`, {
+        username: formData.get("username"),
+        password: formData.get("password"),
+      })
+      .then(() => {
+        window.location = "/login/login.html";
+      })
+      .catch((err) => console.log(err));
   }
 }

@@ -12,6 +12,7 @@ a {
   right: 0;
   background: #292929;
   display: flex;
+  justify-content: space-between;
   height: 79px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
 }
@@ -336,6 +337,13 @@ a {
   font-size: 21px;
   font-weight: 400;
   color: #fff;
+  -o-text-overflow: ellipsis;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  display: -webkit-box;
+  overflow: hidden;
+  text-decoration: none;
+  text-overflow: ellipsis;
 }
 
 .tdl__show-add-task {
@@ -497,10 +505,6 @@ a {
   padding: 16px 21px;
 }
 
-#task-detail__container .modal-content::-webkit-scrollbar {
-  display: none;
-}
-
 .member__group {
   border-radius: 16px;
 }
@@ -588,6 +592,15 @@ a {
   flex: 1;
 }
 
-.task-title:focus {
-  color: red;
+.log-out {
+  padding: 20px;
+  border: none;
+  background-color: transparent;
+  font-size: 30px;
+  color: #fff;
+  transition: all 0.2s ease;
+}
+
+.log-out:hover {
+  color: #4355FA;
 }

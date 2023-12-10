@@ -14,6 +14,19 @@ function handleTogglePassword(e) {
 
 function handleLoginSubmit(e) {
   e.preventDefault();
+  const inputPassword = document.getElementById("password");
+  const inputUsername = document.getElementById("username");
 
-  window.location = "/toDoList.html";
+  axios
+    .post(`${env.DOMAIN_SERVER}:${env.PORT}/api/login`, {
+      username: inputUsername.value,
+      password: inputPassword.value,
+    })
+    .then((res) => res.data)
+    .then((data) => {
+      console.log(data);
+      sessionStorage.setItem("token", data.token);
+      window.location = "/toDoList.html";
+    })
+    .catch((err) => console.log(err));
 }

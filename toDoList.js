@@ -1,5 +1,4 @@
-const token =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoiUTdKU0pnR2pJNSIsImlhdCI6MTcwMjE4NzY2MX0.OU4nY0DkmFmTpGXk4HQAe0nLFFLxjK8hUQ-3_TpLikM";
+const token = sessionStorage.getItem("token");
 
 let boardCache = [];
 let currentBoard = {};
@@ -107,7 +106,6 @@ function handleAddTask(e) {
       tdlShowTask.setAttribute("id", task.id_task);
       tdlShowTask.setAttribute("class", "tdl__show-task");
       tdlShowTask.classList.add("d-flex");
-      tdlShowTask.classList.add("align-items-center");
 
       if (task?.deadline) {
         tdlShowTask.innerHTML = `
@@ -116,12 +114,12 @@ function handleAddTask(e) {
               data-bs-toggle="modal" 
               data-bs-target="#task-detail__container" >
             <div
-              class="tdl__show-task-header d-flex align-items-center justify-content-between"
+              class="tdl__show-task-header d-flex justify-content-between"
             >
                 <p class="m-0">${task.title}</p>
               </div>
             <div
-              class="tdl__show-task-date-tag d-flex align-items-center gap-3 mt-3"
+              class="tdl__show-task-date-tag d-flex gap-3 mt-3"
             >
                 <div class="clock-icon"></div>
                 <p class="m-0">Date</p>
@@ -135,7 +133,7 @@ function handleAddTask(e) {
           data-bs-toggle="modal" 
           data-bs-target="#task-detail__container">
             <div
-              class="tdl__show-task-header d-flex align-items-center justify-content-between"
+              class="tdl__show-task-header d-flex justify-content-between"
             >
                 <p class="m-0">${task.title}</p>
               </div>
@@ -189,7 +187,7 @@ async function handleRenderTask(listTask, idTodo) {
       // tdlShowTask.setAttribute("data-bs-toggle", "modal");
       // tdlShowTask.setAttribute("data-bs-target", "#task-detail__container");
       tdlShowTask.classList.add("d-flex");
-      tdlShowTask.classList.add("align-items-center");
+      // tdlShowTask.classList.add("align-items-center");
 
       if (task?.deadline) {
         tdlShowTask.innerHTML = `
@@ -197,7 +195,7 @@ async function handleRenderTask(listTask, idTodo) {
         data-bs-toggle="modal" 
         data-bs-target="#task-detail__container">
           <div
-            class="tdl__show-task-header d-flex align-items-center justify-content-between"
+            class="tdl__show-task-header d-flex justify-content-between"
           >
               <p class="m-0">${task.title}</p>
             </div>
@@ -249,7 +247,7 @@ function handleDelTodo(e) {
       },
     })
     .then((res) => {
-      console.log(res);
+      console.log(res, "lajflkasjflkasjflkajsflaskd;jfa;klsjdf");
       handleRenderBoard();
     })
     .catch((err) => {
@@ -262,11 +260,11 @@ async function handleRenderTodo(board) {
     await waitUntilSelectorExist(".tdl-name .title-text");
 
     let todoContainer = document.querySelector(".tdl-container");
-    // todoContainer.innerHTML = "";
+    todoContainer.innerHTML = "";
     let todoTitle = document.querySelector(".tdl-name .title-text");
     todoTitle.textContent = board.board_name;
 
-    // todoContainer.setAttribute("id", board.id_board);
+    todoContainer.setAttribute("id", board.id_board);
 
     console.log("hmmm", board);
 
@@ -278,24 +276,24 @@ async function handleRenderTodo(board) {
       })
       .then((res) => res.data.data)
       .then((todo) => {
-        console.log(todo);
+        console.log(todo, "tododododododo");
         for (let i = 0; i < todo.length; i++) {
           let tdlShow = document.createElement("div");
           tdlShow.classList.add("tdl", "tdl__show");
           tdlShow.setAttribute("id", todo[i].id_todo);
           tdlShow.setAttribute("data", todo[i].id_todo);
 
-          console.log("la sao nua", tdlShow, todoContainer);
-          todoContainer.appendChild(tdlShow);
+          console.log("la sao nua", i);
           tdlShow.innerHTML = `
             <div class="tdl__show-header d-flex justify-content-between">
               <h3 class="tdl__show-name">${todo[i].todo_name}</h3>
               <div class="tdl-del-icon" onClick="handleDelTodo(event)"></div>
-            </div>
-            <div class="tdl__show-body"></div>
+              </div>
+              <div class="tdl__show-body"></div>
             <div class="tdl__show-add-task" onClick="handleAddTask(event)">+ Add Task</div>
           `;
-          
+          todoContainer.appendChild(tdlShow);
+
           axios
             .get(
               `${env.DOMAIN_SERVER}:${env.PORT}/api/todos/${todo[i].id_todo}`
@@ -490,6 +488,8 @@ function handleRenderTaskDetail(id_task) {
       const taskDetail = document.getElementById("task-detail__container");
       const taskTag = taskDetail.getElementsByClassName("task-tag")[0];
 
+      console.log(task, "flkajsfd");
+
       taskDetail.setAttribute("data-set", id_task);
 
       taskDetail.getElementsByClassName("task-title")[0].textContent =
@@ -511,6 +511,8 @@ function handleRenderTaskDetail(id_task) {
               class="delete-date btn-close shadow-none"
             ></button>
           </div>`;
+      } else {
+        taskTag.innerHTML = "";
       }
 
       const commentList = taskDetail.getElementsByClassName("comments-list")[0];
@@ -631,29 +633,60 @@ function handleUpdateTaskTitle(id_task, newTitle) {
         },
       }
     )
-    .then(() => {
-      alert("Update success");
+    .then((res) => {
+      // console.log(res);
+      // handleRenderTodo(currentBoard);
+    })
+    .catch((err) => console.log(err));
+}
+
+function handleUpdateTaskDesc(id_task, newDesc) {
+  axios
+    .put(
+      `${env.DOMAIN_SERVER}:${env.PORT}/api/tasks?field=description&id_task=${id_task}`,
+      {
+        description: newDesc,
+      },
+      {
+        headers: {
+          authorization: token,
+        },
+      }
+    )
+    .then((res) => {
+      // console.log(res);
+      // handleRenderTodo(currentBoard);
     })
     .catch((err) => console.log(err));
 }
 
 const taskTitle = document.querySelector(".task-title");
+const taskDescription = document.querySelector(".description-name");
 
 taskTitle.onblur = async (e) => {
   let newTitle = e.target.textContent;
+  console.log(newTitle);
+
   handleUpdateTaskTitle(currentTask.id_task, newTitle);
+  handleRenderTodo(currentBoard);
+};
+
+taskDescription.onblur = async (e) => {
+  let newDesc = e.target.textContent;
+
+  handleUpdateTaskDesc(currentTask.id_task, newDesc);
   handleRenderTodo(currentBoard);
 };
 
 const taskDetailDate = document.getElementById("myID");
 
-taskDetailDate.onchange = (e) => {
-  let date = e.target.value;
+const commentInp = document.querySelector(".task-comment__input-group input");
 
+function handleAddComment(content) {
   axios
     .put(
-      `${env.DOMAIN_SERVER}:${env.PORT}/api/tasks?field=deadline&id_task=${currentTask.id_task}`,
-      { deadline: date },
+      `${env.DOMAIN_SERVER}:${env.PORT}/api/tasks?field=comment&id_task=${currentTask.id_task}`,
+      { content },
       {
         headers: {
           authorization: token,
@@ -662,8 +695,32 @@ taskDetailDate.onchange = (e) => {
     )
     .then(() => {
       handleRenderTaskDetail(currentTask.id_task);
+      commentInp.value = "";
     })
     .catch((err) => {
       console.log(err);
     });
+}
+
+commentInp.onblur = (e) => {
+  handleAddComment(e.target.value);
 };
+
+handleLoadUser();
+
+function handleLoadUser() {
+  axios
+    .get(`${env.DOMAIN_SERVER}:${env.PORT}/api/users/Q7JSJgGjI5`)
+    .then((res) => res.data.data.recordset[0])
+    .then((data) => {
+      const usernameLeftBar = document.querySelector(
+        ".left-bar__header .username"
+      );
+      usernameLeftBar.textContent = data.display_name;
+    });
+}
+
+function handleLogout() {
+  sessionStorage.removeItem("token");
+  window.location = "index.html"
+}
