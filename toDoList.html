@@ -21,20 +21,22 @@
   <body>
     <div class="container-fluid h-100">
       <div class="upper-nav-bar">
-        <h1 class="title-text">OLLERT</h1>
+        <a href="/toDoList.html"><h1 class="title-text">OLLERT</h1></a>
       </div>
       <div class="below row h-100 flex-nowrap">
         <div class="left-bar col-2 p-0">
           <div class="left-bar__header d-flex align-items-center">
-            <div
+            <a
+              href="/profile"
               class="left-bar__user d-flex align-items-center gap-3"
-              onClick="handleNavigateProfile(event)"
             >
+              <!-- onClick="handleNavigateProfile(event)" -->
+
               <figure class="avatar__wrapper m-0">
                 <img src="./assets/images/avatar_default.png" alt="avatar" />
               </figure>
               <h4 class="username m-0 d-none d-xl-block">Bao-chan</h4>
-            </div>
+            </a>
             <div
               class="collapse__left-bar"
               onClick="handleCollapseLeftBar(event)"
@@ -43,22 +45,24 @@
           <div class="work-space-view__wrapper">
             <h3 class="work-space-view__label">Workspace views</h3>
             <div class="work-space-view__list">
-              <div
+              <a
+                href="/table"
                 class="work-space-view__item d-flex align-items-center gap-2"
               >
                 <div
                   class="work-space-view__item-icon work-space-view__item-icon--table"
                 ></div>
                 <div class="work-space-view__item-label">table</div>
-              </div>
-              <div
+              </a>
+              <a
+                href="/calendar"
                 class="work-space-view__item d-flex align-items-center gap-2"
               >
                 <div
                   class="work-space-view__item-icon work-space-view__item-icon--calendar"
                 ></div>
                 <div class="work-space-view__item-label">calendar</div>
-              </div>
+              </a>
             </div>
           </div>
           <div class="boards__wrapper">
@@ -96,18 +100,7 @@
             </div>
           </div>
         </div>
-        <div class="right-bar col-8 p-0">
-          <div id="main_section">
-            <div class="tdl-name">
-              <h1 class="title-text">To do list Name</h1>
-            </div>
-            <div class="tdl-container flex-nowrap">
-              <div class="tdl tdl__button" onClick="handleShowAddList(event)">
-                <h1 class="tdl-label m-0">+ Add a list</h1>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div id="right-bar" class="right-bar col-8 p-0"></div>
       </div>
     </div>
 
@@ -275,6 +268,10 @@
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="./env.js"></script>
+    <script src="./navigate.js"></script>
     <script src="./toDoList.js"></script>
+    <!-- <script src="profile.js"></script> -->
   </body>
 </html>
+
+<!-- tdl__show[data=''] -->

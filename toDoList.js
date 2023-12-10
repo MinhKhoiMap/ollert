@@ -1,3 +1,6 @@
+const token =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoiUTdKU0pnR2pJNSIsImlhdCI6MTcwMjE4NzY2MX0.OU4nY0DkmFmTpGXk4HQAe0nLFFLxjK8hUQ-3_TpLikM";
+
 let boardCache = [];
 let currentBoard = {};
 
@@ -9,10 +12,9 @@ function handleCollapseLeftBar(e) {
 
 function handleAddTodo(e) {
   e.preventDefault();
-
   const { target } = e;
 
-  const id_board = target.parentNode.parentNode.getAttribute("id");
+  const id_board = currentBoard.id_board;
 
   let todoForm = new FormData(target);
 
@@ -27,12 +29,15 @@ function handleAddTodo(e) {
         },
         {
           headers: {
-            authorization:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoiUTdKU0pnR2pJNSIsImlhdCI6MTcwMTk3NzgxNX0.ibbeIcRZEQcru8JbhgBZiIf6IxmStE3OMgpDFFpCxsw",
+            authorization: token,
           },
         }
       )
-      .then((res) => handleRenderBoard(currentBoard))
+      .then((res) => {
+        console.log("vcl", currentBoard);
+        // handleRenderTodo(currentBoard);
+        handleRenderBoard();
+      })
       .catch((err) => {
         console.log(err);
       });
@@ -64,6 +69,7 @@ function handleShowAddList(e) {
       class="w-100"
       name="todo_title"
       autocomplete="off"
+      autofocus="true"
       placeholder="Enter list title..."
     />
     <div class="d-flex align-items-center gap-3 mt-3">
@@ -91,8 +97,7 @@ function handleAddTask(e) {
       },
       {
         headers: {
-          authorization:
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoiUTdKU0pnR2pJNSIsImlhdCI6MTcwMTk3NzgxNX0.ibbeIcRZEQcru8JbhgBZiIf6IxmStE3OMgpDFFpCxsw",
+          authorization: token,
         },
       }
     )
@@ -101,16 +106,52 @@ function handleAddTask(e) {
       let tdlShowTask = document.createElement("div");
       tdlShowTask.setAttribute("id", task.id_task);
       tdlShowTask.setAttribute("class", "tdl__show-task");
+      // tdlShowTask.setAttribute("data-bs-toggle", "modal");
+      // tdlShowTask.setAttribute("data-bs-target", "#task-detail__container");
+      tdlShowTask.classList.add("d-flex");
+      tdlShowTask.classList.add("align-items-center");
 
-      tdlShowTask.innerHTML = `
-        <div
-          class="tdl__show-task-header d-flex align-items-center justify-content-between"
-        >
-          <p class="m-0">Task</p>
+      if (task?.deadline) {
+        tdlShowTask.innerHTML = `
+          <div 
+              class="tdl__show-task-content" 
+              data-bs-toggle="modal" 
+              data-bs-target="#task-detail__container" >
+            <div
+              class="tdl__show-task-header d-flex align-items-center justify-content-between"
+            >
+                <p class="m-0">${task.title}</p>
+              </div>
+            <div
+              class="tdl__show-task-date-tag d-flex align-items-center gap-3 mt-3"
+            >
+                <div class="clock-icon"></div>
+                <p class="m-0">Date</p>
+            </div>
+          </div>
           <div class="tdl-del-icon"></div>
-      </div>`;
+          `;
+      } else {
+        tdlShowTask.innerHTML = `
+          <div class="tdl__show-task-content"
+          data-bs-toggle="modal" 
+          data-bs-target="#task-detail__container">
+            <div
+              class="tdl__show-task-header d-flex align-items-center justify-content-between"
+            >
+                <p class="m-0">${task.title}</p>
+              </div>
+            </div>
+          <div class="tdl-del-icon"></div>`;
+      }
+      
+      tdlShowTask.onclick = () => {
+        currentTask = task;
+        handleRenderTaskDetail(task.id_task);
+      };
 
-      tdlShowTask.querySelector(".tdl-del-icon").onclick = () => {
+      tdlShowTask.querySelector(".tdl-del-icon").onclick = (e) => {
+        e.stopPropagation();
         handleDelTask(tdlShowTask, task);
       };
       listTaskNode.appendChild(tdlShowTask);
@@ -134,50 +175,68 @@ function handleDelTask(node, task) {
     });
 }
 
-function handleRenderTask(listTask, idTodo) {
-  const todoTask = document.getElementById(idTodo);
-  const listTaskNode = todoTask.getElementsByClassName("tdl__show-body")[0];
+let currentTask = {};
 
-  listTask.forEach((task) => {
-    let tdlShowTask = document.createElement("div");
-    tdlShowTask.setAttribute("id", task.id_task);
-    tdlShowTask.setAttribute("class", "tdl__show-task");
-    tdlShowTask.setAttribute("data-bs-toggle", "modal");
-    tdlShowTask.setAttribute("data-bs-target", "#task-detail__container");
+async function handleRenderTask(listTask, idTodo) {
+  try {
+    // await waitUntilSelectorExist(`tdl__show-body`);
+    const todoTask = document.getElementById(idTodo);
+    const listTaskNode = todoTask.getElementsByClassName("tdl__show-body")[0];
 
-    if (task?.deadline) {
-      tdlShowTask.innerHTML = `
-        <div
-          class="tdl__show-task-header d-flex align-items-center justify-content-between"
-        >
-            <p class="m-0">${task.title}</p>
-            <div class="tdl-del-icon"></div>
+    listTask.forEach((task) => {
+      let tdlShowTask = document.createElement("div");
+      tdlShowTask.setAttribute("id", task.id_task);
+      tdlShowTask.setAttribute("class", "tdl__show-task");
+      // tdlShowTask.setAttribute("data-bs-toggle", "modal");
+      // tdlShowTask.setAttribute("data-bs-target", "#task-detail__container");
+      tdlShowTask.classList.add("d-flex");
+      tdlShowTask.classList.add("align-items-center");
+
+      if (task?.deadline) {
+        tdlShowTask.innerHTML = `
+        <div class="tdl__show-task-content" 
+        data-bs-toggle="modal" 
+        data-bs-target="#task-detail__container">
+          <div
+            class="tdl__show-task-header d-flex align-items-center justify-content-between"
+          >
+              <p class="m-0">${task.title}</p>
+            </div>
+          <div
+            class="tdl__show-task-date-tag d-flex align-items-center gap-3 mt-3"
+          >
+              <div class="clock-icon"></div>
+              <p class="m-0">Date</p>
           </div>
-        <div
-          class="tdl__show-task-date-tag d-flex align-items-center gap-3 mt-3"
-        >
-            <div class="clock-icon"></div>
-            <p class="m-0">Date</p>
-        </div>`;
-    } else {
-      tdlShowTask.innerHTML = `
-        <div
-          class="tdl__show-task-header d-flex align-items-center justify-content-between"
-        >
-          <p class="m-0">${task.title}</p>
-          <div class="tdl-del-icon"></div>
-      </div>`;
-    }
+        </div>
+        <div class="tdl-del-icon"></div>
+        `;
+      } else {
+        tdlShowTask.innerHTML = `
+        <div class="tdl__show-task-content" 
+        data-bs-toggle="modal" 
+        data-bs-target="#task-detail__container">
+          <div
+            class="tdl__show-task-header d-flex align-items-center justify-content-between"
+          >
+              <p class="m-0">${task.title}</p>
+            </div>
+          </div>
+        <div class="tdl-del-icon"></div>`;
+      }
 
-    tdlShowTask.onclick = () => {
-      handleRenderTaskDetail(task.id_task);
-    };
+      tdlShowTask.onclick = () => {
+        currentTask = task;
+        handleRenderTaskDetail(task.id_task);
+      };
 
-    tdlShowTask.querySelector(".tdl-del-icon").onclick = () => {
-      handleDelTask(tdlShowTask, task);
-    };
-    listTaskNode.appendChild(tdlShowTask);
-  });
+      tdlShowTask.querySelector(".tdl-del-icon").onclick = (e) => {
+        e.stopPropagation();
+        handleDelTask(tdlShowTask, task);
+      };
+      listTaskNode.appendChild(tdlShowTask);
+    });
+  } catch (error) {}
 }
 
 function handleDelTodo(e) {
@@ -187,44 +246,49 @@ function handleDelTodo(e) {
   axios
     .delete(`${env.DOMAIN_SERVER}:${env.PORT}/api/todos/${id_todo}`, {
       headers: {
-        authorization:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoiUTdKU0pnR2pJNSIsImlhdCI6MTcwMTk3NzgxNX0.ibbeIcRZEQcru8JbhgBZiIf6IxmStE3OMgpDFFpCxsw",
+        authorization: token,
       },
     })
     .then((res) => {
       console.log(res);
-      handleRenderTodo(currentBoard);
+      handleRenderBoard();
     })
     .catch((err) => {
       console.log(err);
     });
 }
 
-function handleRenderTodo(board) {
-  const todoTitle = document.querySelector(".tdl-name .title-text");
-  todoTitle.innerText = board.board_name;
-  const todoContainer = document.querySelector(".tdl-container");
+async function handleRenderTodo(board) {
+  try {
+    await waitUntilSelectorExist(".tdl-name .title-text");
 
-  todoContainer.innerHTML = "";
+    let todoContainer = document.querySelector(".tdl-container");
+    // todoContainer.innerHTML = "";
+    let todoTitle = document.querySelector(".tdl-name .title-text");
+    todoTitle.textContent = board.board_name;
 
-  todoContainer.setAttribute("id", board.id_board);
+    // todoContainer.setAttribute("id", board.id_board);
 
-  axios
-    .get(`${env.DOMAIN_SERVER}:${env.PORT}/api/boards/${board.id_board}`, {
-      headers: {
-        authorization:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoiUTdKU0pnR2pJNSIsImlhdCI6MTcwMTk3NzgxNX0.ibbeIcRZEQcru8JbhgBZiIf6IxmStE3OMgpDFFpCxsw",
-      },
-    })
-    .then((res) => res.data.data)
-    .then((todo) => {
-      console.log(todo);
-      for (let i = 0; i < todo.length; i++) {
-        let tdlShow = document.createElement("div");
-        tdlShow.classList.add("tdl", "tdl__show");
-        tdlShow.setAttribute("id", todo[i].id_todo);
+    console.log("hmmm", board);
 
-        tdlShow.innerHTML = `
+    axios
+      .get(`${env.DOMAIN_SERVER}:${env.PORT}/api/boards/${board.id_board}`, {
+        headers: {
+          authorization: token,
+        },
+      })
+      .then((res) => res.data.data)
+      .then((todo) => {
+        console.log(todo);
+        for (let i = 0; i < todo.length; i++) {
+          let tdlShow = document.createElement("div");
+          tdlShow.classList.add("tdl", "tdl__show");
+          tdlShow.setAttribute("id", todo[i].id_todo);
+          tdlShow.setAttribute("data", todo[i].id_todo);
+
+          console.log("la sao nua", tdlShow, todoContainer);
+          todoContainer.appendChild(tdlShow);
+          tdlShow.innerHTML = `
             <div class="tdl__show-header d-flex justify-content-between">
               <h3 class="tdl__show-name">${todo[i].todo_name}</h3>
               <div class="tdl-del-icon" onClick="handleDelTodo(event)"></div>
@@ -232,26 +296,32 @@ function handleRenderTodo(board) {
             <div class="tdl__show-body"></div>
             <div class="tdl__show-add-task" onClick="handleAddTask(event)">+ Add Task</div>
           `;
+          // axios
+          //   .get(
+          //     `${env.DOMAIN_SERVER}:${env.PORT}/api/todos/${todo[i].id_todo}`
+          //   )
+          //   .then((res) => {
+          //     console.log(res);
+          //     return res.data.data;
+          //   })
+          //   .then((data) => {
+          //     console.log(todo[i].id_todo, data, "hmmm");
+          //     handleRenderTask(data, todo[i].id_todo);
+          //   })
+          //   .catch((err) => console.log(err));
+        }
 
-        todoContainer.appendChild(tdlShow);
-        axios
-          .get(`${env.DOMAIN_SERVER}:${env.PORT}/api/todos/${todo[i].id_todo}`)
-          .then((res) => res.data.data)
-          .then((data) => {
-            console.log(todo[i].id_todo, data, "hmmm");
-            handleRenderTask(data, todo[i].id_todo);
-          })
-          .catch((err) => console.log(err));
-      }
-
-      return todoContainer;
-    })
-    .then((ele) => {
-      ele.innerHTML += `<div class="tdl tdl__button" onClick="handleShowAddList(event)">
+        return todoContainer;
+      })
+      .then((ele) => {
+        ele.innerHTML += `<div class="tdl tdl__button" onClick="handleShowAddList(event)">
         <h1 class="tdl-label m-0">+ Add a list</h1>
       </div>`;
-    })
-    .catch((err) => console.log(err));
+      })
+      .catch((err) => console.log(err));
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 function handleRenderBoard(autoClickFirstBoard = true) {
@@ -263,20 +333,20 @@ function handleRenderBoard(autoClickFirstBoard = true) {
     .get(`${env.DOMAIN_SERVER}:${env.PORT}/api/boards`, {
       mode: "cors",
       headers: {
-        authorization:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoiUTdKU0pnR2pJNSIsImlhdCI6MTcwMTk3NzgxNX0.ibbeIcRZEQcru8JbhgBZiIf6IxmStE3OMgpDFFpCxsw",
+        authorization: token,
       },
     })
     .then((res) => res.data)
     .then((data) => {
-      console.log(data);
+      // console.log(data);
       boardCache = data.data;
       data.data.map((board, index) => {
-        let boardEle = document.createElement("div");
+        let boardEle = document.createElement("a");
         boardEle.setAttribute(
           "class",
           "boards__item d-flex align-items-center justify-content-between"
         );
+        boardEle.setAttribute("href", `/board`);
 
         boardEle.innerHTML = `<div class="d-flex align-items-center gap-2">
         <div class="boards__item-icon"></div>
@@ -287,44 +357,65 @@ function handleRenderBoard(autoClickFirstBoard = true) {
         const delBoardBtn = boardEle.getElementsByClassName(
           "boards__item-del-icon"
         )[0];
+
         delBoardBtn.onclick = () => {
           handleDelBoard(board);
         };
 
         boardEle.onclick = () => {
           currentBoard = board;
-
+          console.log("handleRenderBoard");
           boardsListEl.childNodes.forEach((node) => {
             if (node.classList.contains("boards__item--current"))
               node.classList.remove("boards__item--current");
           });
-
-          boardEle.classList.add("boards__item--current");
           handleRenderTodo(board);
+          boardEle.classList.add("boards__item--current");
         };
 
         boardsListEl.appendChild(boardEle);
 
-        // if (currentBoard) {
-        //   console.log("lkjaflksj", currentBoard === board.id_board);
-        //   if (board.id_board === currentBoard.id_board) {
-        //     boardEle.click();
-        //     return;
-        //   }
-        // }
-
-        if (autoClickFirstBoard) {
-          if (index === 0) {
+        if (Object.keys(currentBoard).length > 0) {
+          console.log(
+            "lkjaflksj",
+            String(board.id_board) == String(currentBoard.id_board)
+          );
+          console.log(currentBoard.id_board, board.id_board);
+          if (String(board.id_board) == String(currentBoard.id_board)) {
+            console.log("dữ roi dó");
             boardEle.click();
             currentBoard = board;
           }
-        } else if (index === data.data.length - 1) {
-          boardEle.click();
-          currentBoard = board;
+        } else if (autoClickFirstBoard) {
+          if (index === 0) {
+            boardEle.click();
+            currentBoard = board;
+          } else if (index === data.data.length - 1) {
+            boardEle.click();
+            currentBoard = board;
+          }
         }
       });
     })
     .catch((err) => console.log(err, "loi r"));
+}
+
+function waitUntilSelectorExist(selector) {
+  let MutationObserver = window.MutationObserver;
+
+  let promise = new Promise(function (resolve) {
+    let observer;
+    observer = new MutationObserver(function (mutations) {
+      let element = document.querySelector(selector);
+      if (element !== null) {
+        observer.disconnect();
+        resolve();
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  });
+  // console.log("vai loz");
+  return promise;
 }
 
 handleRenderBoard();
@@ -338,12 +429,11 @@ function handleAddBoard() {
       },
       {
         headers: {
-          authorization:
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoiUTdKU0pnR2pJNSIsImlhdCI6MTcwMTk3NzgxNX0.ibbeIcRZEQcru8JbhgBZiIf6IxmStE3OMgpDFFpCxsw",
+          authorization: token,
         },
       }
     )
-    .then((res) => console.log(res))
+    // .then((res) => console.log(res))
     .then(() => handleRenderBoard(false))
     .catch((err) => console.log(err));
 }
@@ -352,11 +442,10 @@ function handleDelBoard(board) {
   axios
     .delete(`${env.DOMAIN_SERVER}:${env.PORT}/api/boards/${board.id_board}`, {
       headers: {
-        authorization:
-          "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoiUTdKU0pnR2pJNSIsImlhdCI6MTcwMTk3NzgxNX0.ibbeIcRZEQcru8JbhgBZiIf6IxmStE3OMgpDFFpCxsw",
+        authorization: token,
       },
     })
-    .then((res) => console.log(res))
+    // .then((res) => console.log(res))
     .then(() => {
       handleRenderBoard();
     })
@@ -370,13 +459,12 @@ function handleAddMember(user) {
       { id_user: user.id_user },
       {
         headers: {
-          authorization:
-            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoiUTdKU0pnR2pJNSIsImlhdCI6MTcwMTk3NzgxNX0.ibbeIcRZEQcru8JbhgBZiIf6IxmStE3OMgpDFFpCxsw",
+          authorization: token,
         },
       }
     )
     .then((res) => {
-      console.log(res);
+      // console.log(res);
       return res.data.data;
     })
     .then((member) => {
@@ -395,11 +483,13 @@ function handleRenderTaskDetail(id_task) {
   axios
     .get(`${env.DOMAIN_SERVER}:${env.PORT}/api/tasks/${id_task}`)
     .then((res) => {
-      console.log(res);
+      // console.log(res);
       return res.data.data;
     })
     .then((task) => {
       const taskDetail = document.getElementById("task-detail__container");
+
+      taskDetail.setAttribute("data-set", id_task);
 
       taskDetail.getElementsByClassName("task-title")[0].textContent =
         task.title;
@@ -463,7 +553,7 @@ function handleSearch(e) {
   axios
     .get(`${env.DOMAIN_SERVER}:${env.PORT}/api/users?username=${value}`)
     .then((res) => {
-      console.log(res);
+      // console.log(res);
       return res.data;
     })
     .then((data) => {
@@ -511,6 +601,29 @@ function handleCloseFormAddMem(event) {
     .classList.remove("member__group--show");
 }
 
-function handleNavigateProfile(e) {
-  window.location = "/profile.html";
+function handleUpdateTaskTitle(id_task, newTitle) {
+  axios
+    .put(
+      `${env.DOMAIN_SERVER}:${env.PORT}/api/tasks?field=title&id_task=${id_task}`,
+      {
+        title: newTitle,
+      },
+      {
+        headers: {
+          authorization: token,
+        },
+      }
+    )
+    .then(() => {
+      alert("Update success");
+    })
+    .catch((err) => console.log(err));
 }
+
+const taskTitle = document.querySelector(".task-title");
+
+taskTitle.onblur = async (e) => {
+  let newTitle = e.target.textContent;
+  handleUpdateTaskTitle(currentTask.id_task, newTitle);
+  handleRenderTodo(currentBoard);
+};
