@@ -106,8 +106,6 @@ function handleAddTask(e) {
       let tdlShowTask = document.createElement("div");
       tdlShowTask.setAttribute("id", task.id_task);
       tdlShowTask.setAttribute("class", "tdl__show-task");
-      // tdlShowTask.setAttribute("data-bs-toggle", "modal");
-      // tdlShowTask.setAttribute("data-bs-target", "#task-detail__container");
       tdlShowTask.classList.add("d-flex");
       tdlShowTask.classList.add("align-items-center");
 
@@ -154,6 +152,7 @@ function handleAddTask(e) {
         e.stopPropagation();
         handleDelTask(tdlShowTask, task);
       };
+
       listTaskNode.appendChild(tdlShowTask);
     })
     .catch((err) => console.log(err));
@@ -296,19 +295,20 @@ async function handleRenderTodo(board) {
             <div class="tdl__show-body"></div>
             <div class="tdl__show-add-task" onClick="handleAddTask(event)">+ Add Task</div>
           `;
-          // axios
-          //   .get(
-          //     `${env.DOMAIN_SERVER}:${env.PORT}/api/todos/${todo[i].id_todo}`
-          //   )
-          //   .then((res) => {
-          //     console.log(res);
-          //     return res.data.data;
-          //   })
-          //   .then((data) => {
-          //     console.log(todo[i].id_todo, data, "hmmm");
-          //     handleRenderTask(data, todo[i].id_todo);
-          //   })
-          //   .catch((err) => console.log(err));
+          
+          axios
+            .get(
+              `${env.DOMAIN_SERVER}:${env.PORT}/api/todos/${todo[i].id_todo}`
+            )
+            .then((res) => {
+              console.log(res);
+              return res.data.data;
+            })
+            .then((data) => {
+              console.log(todo[i].id_todo, data, "hmmm");
+              handleRenderTask(data, todo[i].id_todo);
+            })
+            .catch((err) => console.log(err));
         }
 
         return todoContainer;

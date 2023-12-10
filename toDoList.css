@@ -361,6 +361,11 @@ a {
   border-radius: 16px;
 }
 
+#table {
+  height: 100%;
+  overflow: auto;
+}
+
 .tdl__show-task-date-tag .clock-icon {
   width: 20px;
   height: 20px;
