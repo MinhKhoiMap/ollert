@@ -144,7 +144,7 @@ function handleAddTask(e) {
             </div>
           <div class="tdl-del-icon"></div>`;
       }
-      
+
       tdlShowTask.onclick = () => {
         currentTask = task;
         handleRenderTaskDetail(task.id_task);
@@ -483,11 +483,12 @@ function handleRenderTaskDetail(id_task) {
   axios
     .get(`${env.DOMAIN_SERVER}:${env.PORT}/api/tasks/${id_task}`)
     .then((res) => {
-      // console.log(res);
+      console.log(res);
       return res.data.data;
     })
     .then((task) => {
       const taskDetail = document.getElementById("task-detail__container");
+      const taskTag = taskDetail.getElementsByClassName("task-tag")[0];
 
       taskDetail.setAttribute("data-set", id_task);
 
@@ -495,6 +496,22 @@ function handleRenderTaskDetail(id_task) {
         task.title;
       taskDetail.getElementsByClassName("description-name")[0].textContent =
         task.description;
+
+      if (task.deadline) {
+        taskTag.innerHTML = `
+          <div
+            class="tdl__show-task-date-tag d-flex align-items-center justify-content-between gap-3 mt-3"
+            >
+            <div class="d-flex align-items-center gap-3">
+              <div class="clock-icon"></div>
+              <p class="m-0" style="font-size: 13px">Date</p>
+            </div>
+            <button
+              type="button"
+              class="delete-date btn-close shadow-none"
+            ></button>
+          </div>`;
+      }
 
       const commentList = taskDetail.getElementsByClassName("comments-list")[0];
 
@@ -626,4 +643,27 @@ taskTitle.onblur = async (e) => {
   let newTitle = e.target.textContent;
   handleUpdateTaskTitle(currentTask.id_task, newTitle);
   handleRenderTodo(currentBoard);
+};
+
+const taskDetailDate = document.getElementById("myID");
+
+taskDetailDate.onchange = (e) => {
+  let date = e.target.value;
+
+  axios
+    .put(
+      `${env.DOMAIN_SERVER}:${env.PORT}/api/tasks?field=deadline&id_task=${currentTask.id_task}`,
+      { deadline: date },
+      {
+        headers: {
+          authorization: token,
+        },
+      }
+    )
+    .then(() => {
+      handleRenderTaskDetail(currentTask.id_task);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 };

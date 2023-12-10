@@ -356,7 +356,7 @@ a {
 .tdl__show-task-date-tag {
   width: fit-content;
   padding: 10px;
-  padding-right: 40px;
+  padding-right: 20px;
   background-color: #ffa98d;
   border-radius: 16px;
 }
@@ -438,6 +438,28 @@ a {
   border-radius: 16px;
   font-size: 16px;
   font-weight: 400;
+}
+
+.button-show-picker {
+  position: relative;
+  z-index: 3;
+}
+
+.button-show-picker #myID {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  outline: none;
+  /* visibility: hidden; */
+  background-color: transparent;
+  border: none;
+  z-index: 2;
+  text-indent: -99999px;
+}
+
+.flatpickr-input.active {
+  visibility: hidden;
 }
 
 #task-detail__container .add-mem,
@@ -564,10 +586,3 @@ a {
 .task-title:focus {
   color: red;
 }
-
-/* {
-  headers: {
-    authorization:
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoiUTdKU0pnR2pJNSIsImlhdCI6MTcwMTk3NzgxNX0.ibbeIcRZEQcru8JbhgBZiIf6IxmStE3OMgpDFFpCxsw",
-  },
-} */
