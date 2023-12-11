@@ -3,6 +3,12 @@ function handleUpdateProfile(e) {
 
   let formUpdate = new FormData(e.target);
 
+  console.log({
+    username: formUpdate.get("username"),
+    displayname: formUpdate.get("displayname"),
+    bio: formUpdate.get("bio"),
+  });
+
   axios
     .put(
       `${env.DOMAIN_SERVER}:${env.PORT}/api/users`,
@@ -32,7 +38,11 @@ function handleRenderProfile() {
   const bioInput = document.querySelector("#bio");
 
   axios
-    .get(`${env.DOMAIN_SERVER}:${env.PORT}/api/users/Q7JSJgGjI5`)
+    .get(`${env.DOMAIN_SERVER}:${env.PORT}/api/users`, {
+      headers: {
+        authorization: sessionStorage.getItem("token"),
+      },
+    })
     .then((res) => res.data.data.recordset[0])
     .then((data) => {
       console.log(username);

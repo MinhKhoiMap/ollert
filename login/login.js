@@ -17,6 +17,8 @@ function handleLoginSubmit(e) {
   const inputPassword = document.getElementById("password");
   const inputUsername = document.getElementById("username");
 
+  console.log(inputUsername.value, inputPassword.value);
+
   axios
     .post(`${env.DOMAIN_SERVER}:${env.PORT}/api/login`, {
       username: inputUsername.value,
